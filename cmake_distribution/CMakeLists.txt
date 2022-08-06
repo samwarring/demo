@@ -27,6 +27,9 @@ install(TARGETS my_units units_calculator
         COMPONENT Runtime
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS my_units
+        COMPONENT Development
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES my_units.h "${CMAKE_CURRENT_BINARY_DIR}/my_units_export.h"
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         COMPONENT Development)
