@@ -20,16 +20,16 @@ target_link_libraries(units_calculator PRIVATE my_units)
 # Define installation rules for the targets. For "Runtime"
 # installations, user installs the application and shared library.
 # For "Development" installations, user must also install the
-# header files.
+# header files and DLL import libs (when necessary).
 # -------------------------------------------------------------------
 include(GNUInstallDirs)
 install(TARGETS my_units units_calculator
-        COMPONENT Runtime
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(TARGETS my_units
-        COMPONENT Development
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+                COMPONENT Runtime
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT Runtime
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                COMPONENT Development)
 install(FILES my_units.h "${CMAKE_CURRENT_BINARY_DIR}/my_units_export.h"
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         COMPONENT Development)
@@ -73,6 +73,17 @@ endif()
 # to odd installation paths on windows like "C:/Program Files/UnitsCalculator 0.1.0".
 # On Windows, the version typically doesn't appear in the Program Files folder.
 set(CPACK_PACKAGE_INSTALL_DIRECTORY "UnitsCalculator")
+
+# -------------------------------------------------------------------
+# CPack variables for DEB generator. By default, all components are
+# grouped into a single installer. By enabling CPACK_DEB_COMPONENT_INSTALL,
+# the DEB generator will generate one *.deb package per component.
+# Inter-component dependencies are respected by the output files by
+# enabling CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS.
+# -------------------------------------------------------------------
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Anon <anon@gmail.com>")
+set(CPACK_DEB_COMPONENT_INSTALL ON)
+set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
 
 # -------------------------------------------------------------------
 # CPack variables for WIX generator. Supports component-based

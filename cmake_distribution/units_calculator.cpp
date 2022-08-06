@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cctype>
 #include <my_units.h>
 
 using namespace std;
@@ -56,8 +57,13 @@ int main() {
     while (true) {
         cout << ">> ";
         getline(cin, command_line);
-        transform(command_line.begin(), command_line.end(), command_line.begin(), toupper);
+        transform(command_line.begin(), command_line.end(), command_line.begin(),
+                  [](unsigned char c){ return std::toupper(c); });
         vector<string> tokens = tokenize(command_line);
+
+        if (tokens.size() == 0) {
+            continue;
+        }
 
         if (tokens[0] == "EXIT") {
             cout << "Exiting." << endl;
