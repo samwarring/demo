@@ -81,6 +81,7 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "UnitsCalculator")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Anon <anon@gmail.com>")
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
+set(CPACK_DEBIAN_RUNTIME_DEBUGINFO_PACKAGE ON)
 
 # -------------------------------------------------------------------
 # CPack variables for WIX generator. Supports component-based
