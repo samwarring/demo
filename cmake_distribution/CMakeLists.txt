@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.22)
 project(UnitsCalculator VERSION 0.1.0)
 
 # -------------------------------------------------------------------
@@ -47,20 +47,17 @@ install(FILES my_units.h "${CMAKE_CURRENT_BINARY_DIR}/my_units_export.h"
 # well-known paths.
 # -------------------------------------------------------------------
 if (MSVC)
-    if ("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 17 2022")
-        if ("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
-            set(VCREDIST_ARCH x86)
-        else()
-            set(VCREDIST_ARCH x64)
-        endif()
-        set(VCREDIST_FILE "vc_redist.${VCREDIST_ARCH}.exe")
-        set(VCREDIST_PATH "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Redist/MSVC/v143/${VCREDIST_FILE}")
+    if (CMAKE_SIZEOF_VOID_P STREQUAL 8)
+        set(VCREDIST_FILE vc_redist.x64.exe)
     else()
-        message(FATAL_ERROR "Unknown Visual Studio Version")
+        set(VCREDIST_FILE vc_redist.x86.exe)
     endif()
-    if (NOT EXISTS "${VCREDIST_PATH}")
-        message(FATAL_ERROR "File does not exist: ${VCREDIST_PATH}")
-    endif()
+    find_program(
+        VCREDIST_PATH ${VCREDIST_FILE}
+        REQUIRED
+        PATHS "C:/Program Files/Microsoft Visual Studio/2022/Community"
+        PATH_SUFFIXES "VC/Redist/MSVC/v${MSVC_TOOLSET_VERSION}"
+    )
     # Update path to use Windows path separators
     string(REPLACE "/" "\\" VCREDIST_PATH "${VCREDIST_PATH}")
 endif()
