@@ -9,6 +9,9 @@ add_library(my_units SHARED my_units.cpp)
 include(GenerateExportHeader)
 generate_export_header(my_units)
 target_include_directories(my_units PUBLIC . ${CMAKE_CURRENT_BINARY_DIR})
+set_target_properties(my_units PROPERTIES
+                      VERSION ${PROJECT_VERSION}
+                      SOVERSION ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
 
 # -------------------------------------------------------------------
 # Define an application that uses the shared library.
@@ -25,14 +28,15 @@ target_link_libraries(units_calculator PRIVATE my_units)
 include(GNUInstallDirs)
 install(TARGETS my_units units_calculator
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                COMPONENT Runtime
+                COMPONENT ${PROJECT_NAME}_Runtime
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                COMPONENT Runtime
+                COMPONENT ${PROJECT_NAME}_Runtime
+                NAMELINK_COMPONENT ${PROJECT_NAME}_Development
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                COMPONENT Development)
+                COMPONENT ${PROJECT_NAME}_Development)
 install(FILES my_units.h "${CMAKE_CURRENT_BINARY_DIR}/my_units_export.h"
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-        COMPONENT Development)
+        COMPONENT ${PROJECT_NAME}_Development)
 
 # -------------------------------------------------------------------
 # Windows installers should bundle the installer for the Visual
@@ -76,12 +80,20 @@ set(CPACK_PACKAGE_INSTALL_DIRECTORY "UnitsCalculator")
 # grouped into a single installer. By enabling CPACK_DEB_COMPONENT_INSTALL,
 # the DEB generator will generate one *.deb package per component.
 # Inter-component dependencies are respected by the output files by
-# enabling CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS.
+# enabling CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS. Override the package
+# names to avoid repeating the project name.
 # -------------------------------------------------------------------
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Anon <anon@gmail.com>")
 set(CPACK_DEB_COMPONENT_INSTALL ON)
 set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS ON)
 set(CPACK_DEBIAN_RUNTIME_DEBUGINFO_PACKAGE ON)
+set(CPACK_DEBIAN_${PROJECT_NAME_UPPER}_RUNTIME_PACKAGE_NAME ${PROJECT_NAME}-Runtime)
+set(CPACK_DEBIAN_${PROJECT_NAME_UPPER}_DEVELOPMENT_PACKAGE_NAME ${PROJECT_NAME}-Development)
+set(CPACK_DEBIAN_${PROJECT_NAME_UPPER}_RUNTIME_FILE_NAME
+    ${PROJECT_NAME}-Runtime_${PROJECT_VERSION}_${CPACK_DEBIAN_ARCHITECTURE}.deb)
+set(CPACK_DEBIAN_${PROJECT_NAME_UPPER}_DEVELOPMENT_FILE_NAME
+    ${PROJECT_NAME}-Development_${PROJECT_VERSION}_${CPACK_DEBIAN_ARCHITECTURE}.deb)
 
 # -------------------------------------------------------------------
 # CPack variables for WIX generator. Supports component-based
@@ -109,7 +121,7 @@ set(CPACK_NSIS_MODIFY_PATH ON)
 set(CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS      
     "File     \'${VCREDIST_PATH}\'"               
     "ExecWait \'$INSTDIR\\${VCREDIST_FILE} /install /quiet /norestart\'"  
-    "Delete   \'$INSTDIR\\${VCREDIST_FILE}\'")   
+    "Delete   \'$INSTDIR\\${VCREDIST_FILE}\'")
 string(REPLACE ";" "\n" CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS "${CPACK_NSIS_EXTRA_PREINSTALL_COMMANDS}")
 
 # -------------------------------------------------------------------
@@ -120,11 +132,11 @@ include(CPack)
 # -------------------------------------------------------------------
 # Specify inter-component dependencies and more.
 # -------------------------------------------------------------------
-cpack_add_component(Development
+cpack_add_component(${PROJECT_NAME}_Development
                     DISPLAY_NAME "Development files"
                     DESCRIPTION "Files required for building aginst the my_units library"
-                    DEPENDS Runtime)
-cpack_add_component(Runtime
+                    DEPENDS ${PROJECT_NAME}_Runtime)
+cpack_add_component(${PROJECT_NAME}_Runtime
                     DISPLAY_NAME "Applicaiton"
                     DESCRIPTION "The units_calculator application"
                     REQUIRED)
